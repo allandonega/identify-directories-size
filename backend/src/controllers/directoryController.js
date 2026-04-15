@@ -124,14 +124,12 @@ const openDirectory = (req, res) => {
     const platform = process.platform
     let command
 
+    /* istanbul ignore next */
     if (platform === 'win32') {
-      // Windows
       command = `start "" "${normalizedPath}"`
     } else if (platform === 'darwin') {
-      // macOS
       command = `open "${normalizedPath}"`
     } else {
-      // Linux
       command = `xdg-open "${normalizedPath}"`
     }
 

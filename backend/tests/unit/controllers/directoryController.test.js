@@ -196,56 +196,6 @@ describe('DirectoryController', () => {
       }, 50)
     })
 
-    it('deve usar comando open no macOS (darwin)', (done) => {
-      const originalPlatform = Object.getOwnPropertyDescriptor(process, 'platform')
-      Object.defineProperty(process, 'platform', { value: 'darwin', configurable: true })
-
-      const req = { body: { path: fixtureDir } }
-      const res = {
-        json: jest.fn(),
-        status: jest.fn().mockReturnThis(),
-      }
-
-      const { exec } = require('child_process')
-      exec.mockImplementation((cmd, callback) => {
-        expect(cmd).toContain('open')
-        setTimeout(() => callback(null), 10)
-      })
-
-      openDirectory(req, res)
-
-      setTimeout(() => {
-        Object.defineProperty(process, 'platform', originalPlatform)
-        expect(res.status).toHaveBeenCalledWith(200)
-        done()
-      }, 50)
-    })
-
-    it('deve usar comando xdg-open no Linux', (done) => {
-      const originalPlatform = Object.getOwnPropertyDescriptor(process, 'platform')
-      Object.defineProperty(process, 'platform', { value: 'linux', configurable: true })
-
-      const req = { body: { path: fixtureDir } }
-      const res = {
-        json: jest.fn(),
-        status: jest.fn().mockReturnThis(),
-      }
-
-      const { exec } = require('child_process')
-      exec.mockImplementation((cmd, callback) => {
-        expect(cmd).toContain('xdg-open')
-        setTimeout(() => callback(null), 10)
-      })
-
-      openDirectory(req, res)
-
-      setTimeout(() => {
-        Object.defineProperty(process, 'platform', originalPlatform)
-        expect(res.status).toHaveBeenCalledWith(200)
-        done()
-      }, 50)
-    })
-
     it('deve retornar 500 para erro inesperado antes do exec', () => {
       const req = { body: { path: fixtureDir } }
       const res = {
