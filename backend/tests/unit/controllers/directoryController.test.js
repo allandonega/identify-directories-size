@@ -1,4 +1,5 @@
 // backend/tests/unit/controllers/directoryController.test.js
+const fs = require('fs')
 const path = require('path')
 const { execSync } = require('child_process')
 jest.mock('child_process')
@@ -93,6 +94,25 @@ describe('DirectoryController', () => {
       const response = res.json.mock.calls[0][0]
       expect(response.error).toBe('NOT_A_DIRECTORY')
     })
+
+    it('deve retornar erro 500 para erro inesperado do sistema de arquivos', () => {
+      const req = { body: { path: fixtureDir } }
+      const res = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+      }
+
+      const originalReaddirSync = fs.readdirSync
+      fs.readdirSync = () => { throw new Error('Erro de sistema') }
+
+      analyzeDirectory(req, res)
+
+      fs.readdirSync = originalReaddirSync
+
+      expect(res.status).toHaveBeenCalledWith(500)
+      const response = res.json.mock.calls[0][0]
+      expect(response.success).toBe(false)
+    })
   })
 
   describe('openDirectory', () => {
@@ -174,6 +194,75 @@ describe('DirectoryController', () => {
         expect(res.status).toHaveBeenCalledWith(500)
         done()
       }, 50)
+    })
+
+    it('deve usar comando open no macOS (darwin)', (done) => {
+      const originalPlatform = Object.getOwnPropertyDescriptor(process, 'platform')
+      Object.defineProperty(process, 'platform', { value: 'darwin', configurable: true })
+
+      const req = { body: { path: fixtureDir } }
+      const res = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+      }
+
+      const { exec } = require('child_process')
+      exec.mockImplementation((cmd, callback) => {
+        expect(cmd).toContain('open')
+        setTimeout(() => callback(null), 10)
+      })
+
+      openDirectory(req, res)
+
+      setTimeout(() => {
+        Object.defineProperty(process, 'platform', originalPlatform)
+        expect(res.status).toHaveBeenCalledWith(200)
+        done()
+      }, 50)
+    })
+
+    it('deve usar comando xdg-open no Linux', (done) => {
+      const originalPlatform = Object.getOwnPropertyDescriptor(process, 'platform')
+      Object.defineProperty(process, 'platform', { value: 'linux', configurable: true })
+
+      const req = { body: { path: fixtureDir } }
+      const res = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+      }
+
+      const { exec } = require('child_process')
+      exec.mockImplementation((cmd, callback) => {
+        expect(cmd).toContain('xdg-open')
+        setTimeout(() => callback(null), 10)
+      })
+
+      openDirectory(req, res)
+
+      setTimeout(() => {
+        Object.defineProperty(process, 'platform', originalPlatform)
+        expect(res.status).toHaveBeenCalledWith(200)
+        done()
+      }, 50)
+    })
+
+    it('deve retornar 500 para erro inesperado antes do exec', () => {
+      const req = { body: { path: fixtureDir } }
+      const res = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+      }
+
+      const originalExistsSync = fs.existsSync
+      fs.existsSync = () => { throw new Error('FS inesperado') }
+
+      openDirectory(req, res)
+
+      fs.existsSync = originalExistsSync
+
+      expect(res.status).toHaveBeenCalledWith(500)
+      const response = res.json.mock.calls[0][0]
+      expect(response.success).toBe(false)
     })
   })
 

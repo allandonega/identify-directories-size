@@ -125,5 +125,44 @@ describe('DirectoryService', () => {
         })
       }
     })
+
+    it('deve lançar erro para diretório não existente', () => {
+      expect(() => {
+        getDirectoryStructure('/nonexistent/path/12345')
+      }).toThrow('Diretório não existe')
+    })
+
+    it('deve retornar estrutura de arquivo (não diretório)', () => {
+      const filePath = path.join(fixtureDir, 'file1.txt')
+      const structure = getDirectoryStructure(filePath)
+
+      expect(structure.isDirectory).toBe(false)
+      expect(structure.children).toHaveLength(0)
+      expect(structure.size).toBeGreaterThan(0)
+    })
+
+    it('deve respeitar profundidade máxima (maxDepth = 0)', () => {
+      const structure = getDirectoryStructure(fixtureDir, 0)
+
+      expect(structure.children).toHaveLength(0)
+    })
+
+    it('deve incluir arquivos quando onlyDirectories é false', () => {
+      const structure = getDirectoryStructure(fixtureDir, Infinity, 0, false)
+
+      const hasFiles = structure.children.some((child) => !child.isDirectory)
+      expect(hasFiles).toBe(true)
+    })
+
+    it('deve lançar erro quando readdirSync falha', () => {
+      const originalReaddirSync = fs.readdirSync
+      fs.readdirSync = () => { throw new Error('Permission denied') }
+
+      expect(() => {
+        getDirectoryStructure(fixtureDir)
+      }).toThrow('Erro ao ler diretório')
+
+      fs.readdirSync = originalReaddirSync
+    })
   })
 })
