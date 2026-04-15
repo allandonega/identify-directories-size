@@ -1,0 +1,20 @@
+{
+  "name": "identify-directories-size-backend",
+  "version": "1.0.0",
+  "description": "Backend API para cálculo de tamanho de diretórios",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "jest --coverage --detectOpenHandles",
+    "test:watch": "jest --watch",
+    "test:unit": "jest tests/unit",
+    "test:integration": "jest tests/integration"
+  },
+  "keywords": [
+    "directory",
+    "size"
+  ],
+  "author": "Allan Donegá",
+  "license": "MIT"
+}

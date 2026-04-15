@@ -1,0 +1,42 @@
+{
+  "name": "identify-directories-size",
+  "version": "1.0.0",
+  "description": "Aplicação NodeJS para calcular e visualizar tamanho de diretórios",
+  "main": "backend/src/index.js",
+  "scripts": {
+    "start": "node backend/src/index.js",
+    "dev": "nodemon backend/src/index.js",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:unit": "jest backend/tests/unit",
+    "test:integration": "jest backend/tests/integration",
+    "lint": "eslint backend/src",
+    "format": "prettier --write \"backend/**/*.js\" \"frontend/**/*.js\"",
+    "build": "echo 'Frontend assets are static'",
+    "clean": "rm -rf node_modules dist coverage"
+  },
+  "keywords": [
+    "directory",
+    "size",
+    "disk-usage",
+    "nodejs",
+    "express"
+  ],
+  "author": "Allan Donegá",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "jest": "^29.5.0",
+    "supertest": "^6.3.3",
+    "nodemon": "^2.0.22",
+    "eslint": "^8.40.0",
+    "prettier": "^2.8.8"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
