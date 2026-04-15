@@ -52,6 +52,7 @@ Esta aplicação resolve o problema de identificar rapidamente quais diretórios
 ### Pré-requisitos
 - Node.js v18+
 - npm ou yarn
+- Git
 
 ### Passos
 
@@ -64,17 +65,15 @@ Esta aplicação resolve o problema de identificar rapidamente quais diretórios
 2. **Instalar dependências**
    ```bash
    npm install
-   cd backend
-   npm install
-   cd ..
+   cd backend && npm install && cd ..
    ```
 
-3. **Configurar variáveis de ambiente**
+3. **Configurar variáveis de ambiente (opcional)**
    ```bash
    cp backend/.env.example backend/.env
    ```
 
-4. **Iniciar o servidor**
+4. **Iniciar o servidor em desenvolvimento**
    ```bash
    npm run dev
    ```
@@ -83,6 +82,19 @@ Esta aplicação resolve o problema de identificar rapidamente quais diretórios
    ```
    http://localhost:3000
    ```
+
+### Usando Docker
+
+```bash
+# Build
+docker build -t identify-directories-size .
+
+# Run
+docker run -p 3000:3000 identify-directories-size
+
+# Ou com Docker Compose
+docker-compose up
+```
 
 ---
 
@@ -251,14 +263,14 @@ MIT License - veja [LICENSE](LICENSE) para detalhes
 
 ## 🔄 Status do Projeto
 
-| Componente | Status | Progresso |
-|-----------|--------|-----------|
-| Setup | ✅ Concluído | 100% |
-| PRD | ✅ Concluído | 100% |
-| INSTRUCTIONS | ✅ Concluído | 100% |
-| Backend (API) | 🔄 Em Progresso | 0% |
-| Frontend (UI) | 📋 Planejado | 0% |
-| CI/CD | 📋 Planejado | 0% |
+| Componente | Status | Progresso | Testes |
+|-----------|--------|-----------|--------|
+| Setup & Docs | ✅ Completo | 100% | - |
+| Backend (API) | ✅ Completo | 100% | 35 testes ✅ 80% cobertura |
+| Frontend (UI) | ✅ Completo | 100% | - |
+| CI/CD | ✅ Completo | 100% | GitHub Actions |
+| Docker | ✅ Completo | 100% | Dockerfile + docker-compose |
+| Deploy | 📋 Planejado | 0% | - |
 
 ---
 
