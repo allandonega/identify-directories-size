@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Identify Directories Size</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="header-content">
+        <h1>📁 Identify Directories Size</h1>
+        <p class="subtitle">Analise tamanhos de diretórios de forma visual e intuitiva</p>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- Seção de Entrada -->
+      <section class="input-section">
+        <div class="input-group">
+          <label for="directoryPath">Caminho do Diretório:</label>
+          <div class="input-wrapper">
+            <input
+              type="text"
+              id="directoryPath"
+              placeholder="Ex: C:\Users\seu_usuario ou /home/usuario"
+              class="input-field"
+            />
+            <button id="analyzeBtn" class="btn btn-primary">
+              <span class="btn-text">Analisar</span>
+              <span class="btn-spinner hidden"></span>
+            </button>
+          </div>
+          <div id="errorMessage" class="error-message hidden"></div>
+        </div>
+      </section>
+
+      <!-- Seção de Resultados -->
+      <section class="results-section">
+        <div id="resultsContainer" class="results-container hidden">
+          <!-- Informações resumidas -->
+          <div class="summary-info">
+            <div class="summary-item">
+              <span class="summary-label">Diretório:</span>
+              <span id="summaryPath" class="summary-value">-</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Tamanho Total:</span>
+              <span id="summarySize" class="summary-value">-</span>
+            </div>
+          </div>
+
+          <!-- Árvore de diretórios -->
+          <div class="tree-container">
+            <div id="directoryTree" class="directory-tree"></div>
+          </div>
+        </div>
+
+        <!-- Estado vazio -->
+        <div id="emptyState" class="empty-state">
+          <div class="empty-icon">📂</div>
+          <p>Insira um caminho e clique em "Analisar" para começar</p>
+        </div>
+
+        <!-- Estado de carregamento -->
+        <div id="loadingState" class="loading-state hidden">
+          <div class="spinner"></div>
+          <p>Analisando diretório...</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>
+        Identify Directories Size v1.0.0 | Desenvolvido com ❤️ para ajudar a
+        gerenciar seu armazenamento
+      </p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
