@@ -1,280 +1,312 @@
-// frontend/src/app.js
-
+// frontend/public/app.js
 const API_BASE_URL = '/api/v1'
 
-// Elementos do DOM
-const directoryPathInput = document.getElementById('directoryPath')
-const analyzeBtn = document.getElementById('analyzeBtn')
-const errorMessageEl = document.getElementById('errorMessage')
-const resultsContainer = document.getElementById('resultsContainer')
-const emptyState = document.getElementById('emptyState')
-const loadingState = document.getElementById('loadingState')
-const directoryTree = document.getElementById('directoryTree')
-const summaryPath = document.getElementById('summaryPath')
-const summarySize = document.getElementById('summarySize')
+// Aguardar DOM estar pronto
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM carregado')
+  
+  // Elementos do DOM
+  const directoryPathInput = document.getElementById('directoryPath')
+  const analyzeBtn = document.getElementById('analyzeBtn')
+  const errorMessageEl = document.getElementById('errorMessage')
+  const resultsContainer = document.getElementById('resultsContainer')
+  const emptyState = document.getElementById('emptyState')
+  const loadingState = document.getElementById('loadingState')
+  const directoryTree = document.getElementById('directoryTree')
+  const summaryPath = document.getElementById('summaryPath')
+  const summarySize = document.getElementById('summarySize')
 
-/**
- * Mostra uma mensagem de erro
- */
-function showError(message) {
-  errorMessageEl.textContent = message
-  errorMessageEl.classList.remove('hidden')
-  errorMessageEl.classList.add('show')
-  resultsContainer.classList.add('hidden')
-  loadingState.classList.add('hidden')
-  emptyState.classList.add('hidden')
-
-  setTimeout(() => {
-    errorMessageEl.classList.remove('show')
-    errorMessageEl.classList.add('hidden')
-  }, 5000)
-}
-
-/**
- * Limpa a mensagem de erro
- */
-function clearError() {
-  errorMessageEl.classList.add('hidden')
-  errorMessageEl.classList.remove('show')
-}
-
-/**
- * Mostra estado de carregamento
- */
-function showLoading() {
-  loadingState.classList.remove('hidden')
-  resultsContainer.classList.add('hidden')
-  emptyState.classList.add('hidden')
-  analyzeBtn.disabled = true
-}
-
-/**
- * Formata tamanho de arquivo para formato legível
- */
-function formatFileSize(bytes) {
-  if (bytes === 0) return '0 B'
-
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-
-  if (i === 0) return bytes + ' ' + sizes[i]
-  return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i]
-}
-
-/**
- * Cria um item da árvore de diretórios
- */
-function createTreeItem(item, maxDepth = 5, currentDepth = 0) {
-  const div = document.createElement('div')
-  div.className = 'tree-item'
-
-  // Verificar se tem filhos
-  const hasChildren = item.children && item.children.length > 0 && currentDepth < maxDepth
-  if (hasChildren) {
-    div.classList.add('expandable', 'expanded')
-  }
-
-  // Header do item
-  const itemName = document.createElement('div')
-  itemName.className = 'tree-item-name'
-
-  if (hasChildren) {
-    const icon = document.createElement('span')
-    icon.className = 'tree-item-icon'
-    icon.textContent = '📁'
-    itemName.appendChild(icon)
-
-    // Adicionar evento de click para expandir/recolher
-    itemName.style.cursor = 'pointer'
-    itemName.addEventListener('click', (e) => {
-      if (e.target !== itemName && !e.target.classList.contains('btn-open')) return
-      div.classList.toggle('collapsed')
-      div.classList.toggle('expanded')
-    })
-  } else if (item.isDirectory) {
-    const icon = document.createElement('span')
-    icon.className = 'tree-item-icon'
-    icon.textContent = '📂'
-    itemName.appendChild(icon)
-  } else {
-    const icon = document.createElement('span')
-    icon.className = 'tree-item-icon'
-    icon.textContent = '📄'
-    itemName.appendChild(icon)
-  }
-
-  // Nome da pasta/arquivo
-  const name = document.createElement('span')
-  name.textContent = item.name
-  itemName.appendChild(name)
-
-  div.appendChild(itemName)
-
-  // Informações
-  const info = document.createElement('div')
-  info.className = 'tree-item-info'
-
-  // Tamanho
-  const sizeSpan = document.createElement('div')
-  sizeSpan.className = 'tree-item-size'
-  sizeSpan.textContent = item.sizeFormatted || formatFileSize(item.size)
-  info.appendChild(sizeSpan)
-
-  // Percentual (se houver pai)
-  if (item.percentage) {
-    const percentSpan = document.createElement('div')
-    percentSpan.className = 'tree-item-percent'
-    percentSpan.textContent = `${item.percentage}%`
-    info.appendChild(percentSpan)
-  }
-
-  // Botão de abrir (apenas para diretórios)
-  if (item.isDirectory) {
-    const openBtn = document.createElement('button')
-    openBtn.className = 'btn btn-open'
-    openBtn.textContent = '📂 Abrir'
-    openBtn.addEventListener('click', (e) => {
-      e.stopPropagation()
-      openDirectory(item.path)
-    })
-    info.appendChild(openBtn)
-  }
-
-  div.appendChild(info)
-
-  // Barra de progresso
-  if (item.percentage) {
-    const progressContainer = document.createElement('div')
-    progressContainer.className = 'progress-bar'
-
-    const progressFill = document.createElement('div')
-    progressFill.className = 'progress-fill'
-    progressFill.style.width = item.percentage + '%'
-    progressContainer.appendChild(progressFill)
-
-    div.appendChild(progressContainer)
-  }
-
-  // Filhos (se existirem)
-  if (hasChildren) {
-    const childrenContainer = document.createElement('div')
-    childrenContainer.className = 'tree-item-children'
-
-    item.children.forEach((child) => {
-      childrenContainer.appendChild(createTreeItem(child, maxDepth, currentDepth + 1))
-    })
-
-    div.appendChild(childrenContainer)
-  }
-
-  return div
-}
-
-/**
- * Analisa um diretório
- */
-async function analyzeDirectory() {
-  const path = directoryPathInput.value.trim()
-
-  if (!path) {
-    showError('Por favor, insira um caminho de diretório')
+  // Verificar se elementos foram encontrados
+  if (!directoryPathInput) {
+    console.error('❌ directoryPathInput não encontrado')
     return
   }
+  if (!analyzeBtn) {
+    console.error('❌ analyzeBtn não encontrado')
+    return
+  }
+  console.log('✅ Todos os elementos encontrados')
 
-  clearError()
-  showLoading()
+  /**
+   * Mostra uma mensagem de erro
+   */
+  function showError(message) {
+    console.log('Mostrando erro:', message)
+    if (errorMessageEl) {
+      errorMessageEl.textContent = message
+      errorMessageEl.classList.remove('hidden')
+      errorMessageEl.classList.add('show')
+    }
+    if (resultsContainer) resultsContainer.classList.add('hidden')
+    if (loadingState) loadingState.classList.add('hidden')
+    if (emptyState) emptyState.classList.add('hidden')
 
-  try {
-    const response = await fetch(`${API_BASE_URL}/analyze`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ path }),
-    })
+    setTimeout(() => {
+      if (errorMessageEl) {
+        errorMessageEl.classList.remove('show')
+        errorMessageEl.classList.add('hidden')
+      }
+    }, 5000)
+  }
 
-    const data = await response.json()
+  /**
+   * Limpa a mensagem de erro
+   */
+  function clearError() {
+    if (errorMessageEl) {
+      errorMessageEl.classList.add('hidden')
+      errorMessageEl.classList.remove('show')
+    }
+  }
 
-    if (!response.ok) {
-      throw new Error(data.message || 'Erro ao analisar diretório')
+  /**
+   * Mostra estado de carregamento
+   */
+  function showLoading() {
+    console.log('Mostrando carregamento')
+    if (loadingState) loadingState.classList.remove('hidden')
+    if (resultsContainer) resultsContainer.classList.add('hidden')
+    if (emptyState) emptyState.classList.add('hidden')
+    analyzeBtn.disabled = true
+  }
+
+  /**
+   * Formata tamanho de arquivo para formato legível
+   */
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 B'
+
+    const k = 1024
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+    if (i === 0) return bytes + ' ' + sizes[i]
+    return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i]
+  }
+
+  /**
+   * Cria um item da árvore de diretórios
+   */
+  function createTreeItem(item, maxDepth = 5, currentDepth = 0) {
+    if (!item) {
+      console.error('createTreeItem: item é null/undefined')
+      return document.createElement('div')
     }
 
-    // Atualizar UI
-    loadingState.classList.add('hidden')
-    emptyState.classList.add('hidden')
-    resultsContainer.classList.remove('hidden')
-    analyzeBtn.disabled = false
+    const div = document.createElement('div')
+    div.className = 'tree-item'
 
-    // Preencher resumo
-    summaryPath.textContent = data.data.path
-    summarySize.textContent = data.data.sizeFormatted || formatFileSize(data.data.size)
-
-    // Renderizar árvore
-    directoryTree.innerHTML = ''
-    directoryTree.appendChild(createTreeItem(data.data))
-
-    // Focar no resultado
-    resultsContainer.scrollIntoView({ behavior: 'smooth' })
-  } catch (error) {
-    loadingState.classList.add('hidden')
-    emptyState.classList.add('hidden')
-    analyzeBtn.disabled = false
-    showError(error.message || 'Erro ao analisar diretório')
-  }
-}
-
-/**
- * Abre um diretório no explorador do sistema
- */
-async function openDirectory(path) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/open`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ path }),
-    })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      throw new Error(data.message || 'Erro ao abrir diretório')
+    // Verificar se tem filhos
+    const hasChildren = item.children && Array.isArray(item.children) && item.children.length > 0 && currentDepth < maxDepth
+    
+    if (hasChildren) {
+      div.classList.add('expandable', 'expanded')
     }
-  } catch (error) {
-    showError(error.message || 'Erro ao abrir diretório')
+
+    // Informações (layout principal em grid)
+    const info = document.createElement('div')
+    info.className = 'tree-item-info'
+
+    // Coluna 1: Ícone + Nome
+    const nameSection = document.createElement('div')
+    nameSection.style.display = 'flex'
+    nameSection.style.alignItems = 'center'
+    nameSection.style.gap = 'var(--spacing-unit)'
+    nameSection.style.wordBreak = 'break-word'
+
+    // Ícone
+    const icon = document.createElement('span')
+    icon.className = 'tree-item-icon'
+    
+    if (hasChildren) {
+      icon.textContent = '📁'
+      nameSection.style.cursor = 'pointer'
+      nameSection.addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-open')) return
+        div.classList.toggle('collapsed')
+        div.classList.toggle('expanded')
+      })
+    } else if (item.isDirectory) {
+      icon.textContent = '📂'
+    } else {
+      icon.textContent = '📄'
+    }
+    nameSection.appendChild(icon)
+
+    // Nome
+    const name = document.createElement('span')
+    name.textContent = item.name || 'unnamed'
+    name.style.fontWeight = '600'
+    nameSection.appendChild(name)
+
+    info.appendChild(nameSection)
+
+    // Coluna 2: Tamanho
+    const sizeSpan = document.createElement('div')
+    sizeSpan.className = 'tree-item-size'
+    sizeSpan.textContent = item.sizeFormatted || formatFileSize(item.size)
+    info.appendChild(sizeSpan)
+
+    // Coluna 3: Percentual
+    if (item.percentage) {
+      const percentSpan = document.createElement('div')
+      percentSpan.className = 'tree-item-percent'
+      percentSpan.textContent = `${item.percentage}%`
+      info.appendChild(percentSpan)
+    }
+
+    // Coluna 4: Botão de abrir
+    if (item.isDirectory) {
+      const openBtn = document.createElement('button')
+      openBtn.className = 'btn btn-open'
+      openBtn.textContent = '📂 Abrir'
+      openBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        openDirectory(item.path)
+      })
+      info.appendChild(openBtn)
+    }
+
+    div.appendChild(info)
+
+    // Filhos
+    if (hasChildren) {
+      const childrenContainer = document.createElement('div')
+      childrenContainer.className = 'tree-item-children'
+
+      item.children.forEach((child) => {
+        try {
+          childrenContainer.appendChild(createTreeItem(child, maxDepth, currentDepth + 1))
+        } catch (err) {
+          console.error('Erro ao criar child:', err, child)
+        }
+      })
+
+      div.appendChild(childrenContainer)
+    }
+
+    return div
   }
-}
 
-/**
- * Event Listeners
- */
-analyzeBtn.addEventListener('click', analyzeDirectory)
+  /**
+   * Analisa um diretório
+   */
+  async function analyzeDirectory() {
+    const path = directoryPathInput.value.trim()
+    console.log('analyzeDirectory chamado com:', path)
 
-directoryPathInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
+    if (!path) {
+      showError('Por favor, insira um caminho de diretório')
+      return
+    }
+
+    clearError()
+    showLoading()
+
+    try {
+      console.log('Fazendo fetch para:', `${API_BASE_URL}/analyze`)
+      const response = await fetch(`${API_BASE_URL}/analyze`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ path }),
+      })
+
+      console.log('Status da resposta:', response.status)
+
+      const data = await response.json()
+      console.log('Dados da resposta:', data)
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Erro ao analisar diretório')
+      }
+
+      console.log('Atualizando UI')
+      
+      // Atualizar UI
+      if (loadingState) loadingState.classList.add('hidden')
+      if (emptyState) emptyState.classList.add('hidden')
+      if (resultsContainer) resultsContainer.classList.remove('hidden')
+      analyzeBtn.disabled = false
+
+      // Preencher resumo
+      if (summaryPath) summaryPath.textContent = data.data.path
+      if (summarySize) summarySize.textContent = data.data.sizeFormatted || formatFileSize(data.data.size)
+
+      // Renderizar árvore
+      if (directoryTree) {
+        directoryTree.innerHTML = ''
+        directoryTree.appendChild(createTreeItem(data.data))
+      }
+
+      console.log('✅ Análise concluída com sucesso')
+      
+      // Focar no resultado
+      if (resultsContainer) {
+        resultsContainer.scrollIntoView({ behavior: 'smooth' })
+      }
+    } catch (error) {
+      console.error('❌ Erro em analyzeDirectory:', error)
+      if (loadingState) loadingState.classList.add('hidden')
+      if (emptyState) emptyState.classList.add('hidden')
+      analyzeBtn.disabled = false
+      showError(error.message || 'Erro ao analisar diretório')
+    }
+  }
+
+  /**
+   * Abre um diretório no explorador
+   */
+  async function openDirectory(path) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/open`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ path }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Erro ao abrir diretório')
+      }
+    } catch (error) {
+      showError(error.message || 'Erro ao abrir diretório')
+    }
+  }
+
+  /**
+   * Event Listeners
+   */
+  console.log('Adicionando event listeners')
+  
+  analyzeBtn.addEventListener('click', () => {
+    console.log('Botão Analisar clicado')
     analyzeDirectory()
-  }
-})
+  })
 
-/**
- * Preencher com diretório padrão (opcional)
- */
-window.addEventListener('load', () => {
-  // Você pode definir um diretório padrão aqui se desejar
-  // directoryPathInput.value = 'C:\\Users'
+  directoryPathInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      console.log('Enter pressionado')
+      analyzeDirectory()
+    }
+  })
 
-  // Exemplo de teste: use localStorage para persistir o último caminho
+  // Carregar último caminho
   const lastPath = localStorage.getItem('lastDirectoryPath')
   if (lastPath) {
     directoryPathInput.value = lastPath
   }
+
+  // Salvar caminho ao mudar
+  directoryPathInput.addEventListener('change', () => {
+    localStorage.setItem('lastDirectoryPath', directoryPathInput.value)
+  })
+
+  console.log('✅ Inicialização concluída - Aplicação pronta!')
 })
 
-/**
- * Salvar último caminho no localStorage
- */
-directoryPathInput.addEventListener('change', () => {
-  localStorage.setItem('lastDirectoryPath', directoryPathInput.value)
-})
+

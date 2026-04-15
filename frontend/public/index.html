@@ -3,23 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Identify Directories Size</title>
+  <title>Identify Directories Size - Análise de Armazenamento</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="container">
+    <!-- Header Hero -->
     <header class="header">
+      <div class="header-background"></div>
       <div class="header-content">
-        <h1>📁 Identify Directories Size</h1>
-        <p class="subtitle">Analise tamanhos de diretórios de forma visual e intuitiva</p>
+        <div class="header-icon">💾</div>
+        <h1>Identify Directories Size</h1>
+        <p class="subtitle">Analise armazenamento com precisão e visualize o tamanho de cada pasta em tempo real</p>
       </div>
     </header>
 
     <main class="main">
-      <!-- Seção de Entrada -->
+      <!-- Card de Entrada -->
       <section class="input-section">
         <div class="input-group">
-          <label for="directoryPath">Caminho do Diretório:</label>
+          <div class="input-header">
+            <span class="input-icon">🔍</span>
+            <label for="directoryPath">Selecione um Diretório para Análise</label>
+          </div>
           <div class="input-wrapper">
             <input
               type="text"
@@ -28,8 +34,8 @@
               class="input-field"
             />
             <button id="analyzeBtn" class="btn btn-primary">
-              <span class="btn-text">Analisar</span>
               <span class="btn-spinner hidden"></span>
+              <span class="btn-text">Analisar Agora</span>
             </button>
           </div>
           <div id="errorMessage" class="error-message hidden"></div>
@@ -39,43 +45,59 @@
       <!-- Seção de Resultados -->
       <section class="results-section">
         <div id="resultsContainer" class="results-container hidden">
-          <!-- Informações resumidas -->
-          <div class="summary-info">
-            <div class="summary-item">
-              <span class="summary-label">Diretório:</span>
-              <span id="summaryPath" class="summary-value">-</span>
+          <!-- Card de Resumo -->
+          <div class="summary-card">
+            <div class="summary-header">
+              <span class="summary-title">📊 Análise Completa</span>
             </div>
-            <div class="summary-item">
-              <span class="summary-label">Tamanho Total:</span>
-              <span id="summarySize" class="summary-value">-</span>
+            <div class="summary-info">
+              <div class="summary-item">
+                <span class="summary-label">Diretório</span>
+                <span id="summaryPath" class="summary-value">-</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Espaço Total</span>
+                <span id="summarySize" class="summary-value">-</span>
+              </div>
             </div>
           </div>
 
           <!-- Árvore de diretórios -->
-          <div class="tree-container">
-            <div id="directoryTree" class="directory-tree"></div>
+          <div class="tree-card">
+            <div class="tree-header">
+              <span class="tree-title">📁 Estrutura de Pastas</span>
+              <span class="tree-subtitle">Ordenadas por tamanho (maior primeiro)</span>
+            </div>
+            <div class="tree-container">
+              <div id="directoryTree" class="directory-tree"></div>
+            </div>
           </div>
         </div>
 
         <!-- Estado vazio -->
         <div id="emptyState" class="empty-state">
           <div class="empty-icon">📂</div>
-          <p>Insira um caminho e clique em "Analisar" para começar</p>
+          <h2>Comece uma Análise</h2>
+          <p>Digite um caminho de diretório e clique em "Analisar Agora" para visualizar o consumo de espaço</p>
         </div>
 
         <!-- Estado de carregamento -->
         <div id="loadingState" class="loading-state hidden">
-          <div class="spinner"></div>
+          <div class="spinner-container">
+            <div class="spinner"></div>
+            <div class="spinner-ring"></div>
+          </div>
           <p>Analisando diretório...</p>
+          <span class="loading-subtitle">Processando estrutura de pastas</span>
         </div>
       </section>
     </main>
 
     <footer class="footer">
-      <p>
-        Identify Directories Size v1.0.0 | Desenvolvido com ❤️ para ajudar a
-        gerenciar seu armazenamento
-      </p>
+      <div class="footer-content">
+        <p>Identify Directories Size v1.0.0</p>
+        <p class="footer-subtitle">Desenvolvido com IA e ❤️ para otimizar seu armazenamento</p>
+      </div>
     </footer>
   </div>
 
