@@ -79,9 +79,11 @@ const formatBytes = (bytes) => {
  * Obtém a estrutura hierárquica de um diretório com tamanhos
  * @param {string} dirPath - Caminho do diretório
  * @param {number} maxDepth - Profundidade máxima (padrão: infinito)
+ * @param {number} currentDepth - Profundidade atual (interno)
+ * @param {boolean} onlyDirectories - Se true, mostra apenas pastas (padrão: true)
  * @returns {object} Estrutura de diretório
  */
-const getDirectoryStructure = (dirPath, maxDepth = Infinity, currentDepth = 0) => {
+const getDirectoryStructure = (dirPath, maxDepth = Infinity, currentDepth = 0, onlyDirectories = true) => {
   if (!fs.existsSync(dirPath)) {
     throw new Error(`Diretório não existe: ${dirPath}`)
   }
@@ -120,18 +122,22 @@ const getDirectoryStructure = (dirPath, maxDepth = Infinity, currentDepth = 0) =
           const childStructure = getDirectoryStructure(
             filePath,
             maxDepth,
-            currentDepth + 1
+            currentDepth + 1,
+            onlyDirectories
           )
           structure.children.push(childStructure)
           childSize = childStructure.size
         } else {
+          // Se onlyDirectories é true, conta o tamanho mas não adiciona à lista
           childSize = fileStats.size
-          structure.children.push({
-            name: file,
-            path: filePath,
-            size: fileStats.size,
-            isDirectory: false,
-          })
+          if (!onlyDirectories) {
+            structure.children.push({
+              name: file,
+              path: filePath,
+              size: fileStats.size,
+              isDirectory: false,
+            })
+          }
         }
 
         structure.size += childSize
