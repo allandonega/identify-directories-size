@@ -16,5 +16,10 @@
     "size"
   ],
   "author": "Allan Donegá",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "express-rate-limit": "^8.3.2",
+    "helmet": "^8.1.0",
+    "nodemon": "^3.1.14"
+  }
 }

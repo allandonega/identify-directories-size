@@ -1,0 +1,105 @@
+
+> identify-directories-size-backend@1.0.0 test
+> jest --coverage --detectOpenHandles --testPathPattern=directoryController.test.js$
+
+  console.error
+    [ERROR] Erro ao abrir diret├│rio: OPEN_FAILED
+
+    [0m [90m 104 |[39m     })
+     [90m 105 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 106 |[39m     console[33m.[39merror([32m`[ERROR] Erro ao abrir diret├│rio: ${error.code}`[39m)
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 107 |[39m
+     [90m 108 |[39m     [90m// Mapear c├│digo de erro para status HTTP apropriado[39m
+     [90m 109 |[39m     [36mlet[39m statusCode [33m=[39m [35m500[39m[0m
+
+      at error (src/controllers/directoryController.js:106:13)
+      at Object.<anonymous> (tests/unit/controllers/directoryController.test.js:167:7)
+
+  console.error
+    [ERROR] Erro ao abrir diret├│rio: INJECTION_DETECTED
+
+    [0m [90m 104 |[39m     })
+     [90m 105 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 106 |[39m     console[33m.[39merror([32m`[ERROR] Erro ao abrir diret├│rio: ${error.code}`[39m)
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 107 |[39m
+     [90m 108 |[39m     [90m// Mapear c├│digo de erro para status HTTP apropriado[39m
+     [90m 109 |[39m     [36mlet[39m statusCode [33m=[39m [35m500[39m[0m
+
+      at error (src/controllers/directoryController.js:106:13)
+      at Object.<anonymous> (tests/unit/controllers/directoryController.test.js:184:7)
+
+FAIL tests/unit/controllers/directoryController.test.js
+  DirectoryController
+    analyzeDirectory
+      ÔêÜ deve retornar estrutura de diret├│rio v├ílida (13 ms)
+      ÔêÜ deve retornar erro 400 para caminho inv├ílido (2 ms)
+      ├ù deve retornar erro 404 para diret├│rio que n├úo existe (3 ms)
+      ÔêÜ deve retornar erro 400 se caminho ├® null ou undefined (2 ms)
+      ÔêÜ deve retornar erro 400 se caminho ├® arquivo, n├úo diret├│rio (2 ms)
+    openDirectory
+      ÔêÜ deve retornar 200 para caminho v├ílido (2 ms)
+      ÔêÜ deve retornar erro para caminho inv├ílido (2 ms)
+      ├ù deve retornar erro se diret├│rio n├úo existe (2 ms)
+      ÔêÜ deve retornar erro para null ou undefined (1 ms)
+      ÔêÜ deve retornar erro 500 se safeOpenDirectory falha (36 ms)
+      ÔêÜ deve retornar erro 400 se safeOpenDirectory detecta injection (10 ms)
+    healthCheck
+      ÔêÜ deve retornar status ok (3 ms)
+
+  ÔùÅ DirectoryController ÔÇ║ analyzeDirectory ÔÇ║ deve retornar erro 404 para diret├│rio que n├úo existe
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: 404
+    Received: 400
+
+    Number of calls: 1
+
+      65 |       analyzeDirectory(req, res)
+      66 |
+    > 67 |       expect(res.status).toHaveBeenCalledWith(404)
+         |                          ^
+      68 |     })
+      69 |
+      70 |     it('deve retornar erro 400 se caminho ├® null ou undefined', () => {
+
+      at Object.toHaveBeenCalledWith (tests/unit/controllers/directoryController.test.js:67:26)
+
+  ÔùÅ DirectoryController ÔÇ║ openDirectory ÔÇ║ deve retornar erro se diret├│rio n├úo existe
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: 404
+    Received: 400
+
+    Number of calls: 1
+
+      138 |       await openDirectory(req, res)
+      139 |
+    > 140 |       expect(res.status).toHaveBeenCalledWith(404)
+          |                          ^
+      141 |     })
+      142 |
+      143 |     it('deve retornar erro para null ou undefined', async () => {
+
+      at Object.toHaveBeenCalledWith (tests/unit/controllers/directoryController.test.js:140:26)
+
+-------------------------|---------|----------|---------|---------|----------------------------------------------------------------------------------------------------------------------------------------
+File                     | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                      
+-------------------------|---------|----------|---------|---------|----------------------------------------------------------------------------------------------------------------------------------------
+All files                |   47.22 |    42.44 |      50 |   46.83 |                                                                                                                                        
+ controllers             |   84.44 |    53.84 |   83.33 |   84.44 |                                                                                                                                        
+  directoryController.js |   84.44 |    53.84 |   83.33 |   84.44 | 10,59-65,113,115                                                                                                                       
+ services                |   42.23 |     39.6 |   45.45 |    41.4 |                                                                                                                                        
+  directoryService.js    |   42.23 |     39.6 |   45.45 |    41.4 | 12-50,61,75,87-164,185,189,203,206,209,225-227,232-233,238-239,246-247,255,273-275,280-281,290-292,310-316,323-330,336,348-352,357,377 
+ utils                   |   36.58 |    42.22 |   28.57 |   36.58 |                                                                                                                                        
+  pathValidator.js       |   69.69 |    63.33 |   66.66 |   69.69 | 18,26-36,45,52,76,103                                                                                                                  
+  secureExecutor.js      |   14.28 |        0 |       0 |   14.28 | 22,33-118                                                                                                                              
+-------------------------|---------|----------|---------|---------|----------------------------------------------------------------------------------------------------------------------------------------
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 10 passed, 12 total
+Snapshots:   0 total
+Time:        0.722 s, estimated 1 s
+Ran all test suites matching /directoryController.test.js$/i.

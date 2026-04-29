@@ -1,67 +1,50 @@
 // backend/src/controllers/directoryController.js
 const fs = require('fs')
 const path = require('path')
-const { exec } = require('child_process')
-const {
-  calculateDirectorySize,
-  formatBytes,
-  getDirectoryStructure,
-} = require('../services/directoryService')
+const { formatBytes, getDirectoryStructureWithLimits } = require('../services/directoryService')
+const { validatePathSecurity } = require('../utils/pathValidator')
+const { safeOpenDirectory } = require('../utils/secureExecutor')
 
-/**
- * Valida se o caminho é seguro
- * @param {string} dirPath - Caminho a validar
- * @returns {boolean}
- */
-const isValidPath = (dirPath) => {
-  // Validação básica de tipo e vazio
-  if (!dirPath || typeof dirPath !== 'string' || dirPath.trim() === '') {
-    return false
-  }
+// Carregar allowed paths do .env
+const ALLOWED_PATHS = process.env.ALLOWED_PATHS
+  ? process.env.ALLOWED_PATHS.split(',').map((p) => p.trim())
+  : process.env.NODE_ENV === 'production'
+  ? [] // Em produção, EXIGIR configuração
+  : [process.cwd(), require('os').homedir()] // Em dev, home + current dir
 
-  return true
+// CRÍTICO: Validar em startup se há paths permitidos em produção
+if (process.env.NODE_ENV === 'production' && ALLOWED_PATHS.length === 0) {
+  console.error('[SECURITY] ERRO: ALLOWED_PATHS vazio em produção!')
+  console.error('[SECURITY] Configure ALLOWED_PATHS no arquivo .env')
 }
 
 /**
  * Analisa um diretório e retorna sua estrutura com tamanhos
  * POST /api/v1/analyze
  */
-const analyzeDirectory = (req, res) => {
+const analyzeDirectory = async (req, res, next) => {
   try {
     const { path: dirPath } = req.body
 
-    if (!isValidPath(dirPath)) {
+    // Validação robusta contra Path Traversal
+    const validation = validatePathSecurity(dirPath, ALLOWED_PATHS)
+    if (!validation.isValid) {
       return res.status(400).json({
         success: false,
-        error: 'INVALID_PATH',
-        message: 'Caminho do diretório é inválido ou vazio',
+        error: validation.error,
+        message: validation.message,
         statusCode: 400,
       })
     }
 
-    const normalizedPath = path.resolve(dirPath)
-
-    if (!fs.existsSync(normalizedPath)) {
-      return res.status(404).json({
-        success: false,
-        error: 'NOT_FOUND',
-        message: `Diretório não encontrado: ${normalizedPath}`,
-        statusCode: 404,
-      })
-    }
-
-    const stats = fs.statSync(normalizedPath)
-    if (!stats.isDirectory()) {
-      return res.status(400).json({
-        success: false,
-        error: 'NOT_A_DIRECTORY',
-        message: 'O caminho fornecido não é um diretório',
-        statusCode: 400,
-      })
-    }
-
-    // Obter estrutura do diretório
-    const structure = getDirectoryStructure(normalizedPath)
+    // CRÍTICO #4: Agora é async e não bloqueia
+    const structure = await getDirectoryStructureWithLimits(dirPath, {
+      maxDepth: 5,
+      maxItems: 10000,
+      timeout: 30000,
+      followSymlinks: false,
+      onlyDirectories: true,
+    })
 
     // Formatar tamanhos
     const formatStructure = (node) => {
@@ -81,14 +64,8 @@ const analyzeDirectory = (req, res) => {
       timestamp: new Date().toISOString(),
     })
   } catch (error) {
-    console.error('Erro na análise:', error)
-
-    res.status(500).json({
-      success: false,
-      error: 'INTERNAL_ERROR',
-      message: error.message || 'Erro ao analisar diretório',
-      statusCode: 500,
-    })
+    console.error('Erro na análise:', error.code || error.message)
+    next(error) // Deixar o error handler global tratar (seguro)
   }
 }
 
@@ -96,73 +73,55 @@ const analyzeDirectory = (req, res) => {
  * Abre um diretório no explorador do sistema
  * POST /api/v1/open
  */
-const openDirectory = (req, res) => {
+const openDirectory = async (req, res) => {
   try {
     const { path: dirPath } = req.body
 
-    if (!isValidPath(dirPath)) {
+    // Validação robusta contra Path Traversal
+    const validation = validatePathSecurity(dirPath, ALLOWED_PATHS)
+    if (!validation.isValid) {
       return res.status(400).json({
         success: false,
-        error: 'INVALID_PATH',
-        message: 'Caminho do diretório é inválido ou vazio',
+        error: validation.error,
+        message: validation.message,
         statusCode: 400,
       })
     }
 
-    const normalizedPath = path.resolve(dirPath)
+    // Abrir diretório de forma segura (execFile - proteção contra injection)
+    await safeOpenDirectory(dirPath)
 
-    if (!fs.existsSync(normalizedPath)) {
-      return res.status(404).json({
-        success: false,
-        error: 'NOT_FOUND',
-        message: `Diretório não encontrado: ${normalizedPath}`,
-        statusCode: 404,
-      })
-    }
-
-    // Detectar SO e abrir com comando apropriado
-    const platform = process.platform
-    let command
-
-    /* istanbul ignore next */
-    if (platform === 'win32') {
-      command = `start "" "${normalizedPath}"`
-    } else if (platform === 'darwin') {
-      command = `open "${normalizedPath}"`
-    } else {
-      command = `xdg-open "${normalizedPath}"`
-    }
-
-    // Executar comando assincronamente
-    exec(command, (error) => {
-      if (error) {
-        console.error('Erro ao abrir diretório:', error)
-        return res.status(500).json({
-          success: false,
-          error: 'OPEN_FAILED',
-          message: 'Não foi possível abrir o diretório',
-          statusCode: 500,
-        })
-      }
-
-      res.status(200).json({
-        success: true,
-        data: {
-          path: normalizedPath,
-          opened: true,
-        },
-        message: 'Diretório aberto com sucesso',
-        timestamp: new Date().toISOString(),
-      })
+    res.status(200).json({
+      success: true,
+      data: {
+        path: dirPath,
+        opened: true,
+      },
+      message: 'Diretório aberto com sucesso',
+      timestamp: new Date().toISOString(),
     })
   } catch (error) {
-    console.error('Erro ao abrir diretório:', error)
+    console.error(`[ERROR] Erro ao abrir diretório: ${error.code}`)
 
-    res.status(500).json({
+    // Mapear código de erro para status HTTP apropriado
+    let statusCode = 500
+    if (error.code === 'INVALID_PATH' || error.code === 'INJECTION_DETECTED') {
+      statusCode = 400
+    } else if (error.code === 'NOT_FOUND') {
+      statusCode = 404
+    } else if (error.code === 'PERMISSION_DENIED') {
+      statusCode = 403
+    }
+
+    // Não expor detalhes de erro em produção
+    const isDev = process.env.NODE_ENV === 'development'
+    const message = isDev ? error.message : 'Não foi possível abrir o diretório'
+
+    res.status(statusCode).json({
       success: false,
-      error: 'INTERNAL_ERROR',
-      message: error.message || 'Erro interno do servidor',
-      statusCode: 500,
+      error: error.code || 'OPEN_FAILED',
+      message,
+      statusCode,
     })
   }
 }

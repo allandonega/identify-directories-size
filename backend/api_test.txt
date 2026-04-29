@@ -1,0 +1,81 @@
+
+> identify-directories-size-backend@1.0.0 test
+> jest --coverage --detectOpenHandles --testPathPattern=api.test.js$
+
+  console.error
+    [ERROR] Falha ao abrir diret├│rio: 1
+
+    [0m [90m 109 |[39m       [36mif[39m (error) {
+     [90m 110 |[39m         [90m// N├úo expor detalhes de erro em produ├º├úo[39m
+    [31m[1m>[22m[39m[90m 111 |[39m         console[33m.[39merror([32m`[ERROR] Falha ao abrir diret├│rio: ${error.code}`[39m)
+     [90m     |[39m                 [31m[1m^[22m[39m
+     [90m 112 |[39m         [36mconst[39m err [33m=[39m [36mnew[39m [33mError[39m([32m'Falha ao abrir o diret├│rio'[39m)
+     [90m 113 |[39m         err[33m.[39mcode [33m=[39m [32m'OPEN_FAILED'[39m
+     [90m 114 |[39m         reject(err)[0m
+
+      at error (src/utils/secureExecutor.js:111:17)
+
+  console.error
+    [ERROR] Erro ao abrir diret├│rio: OPEN_FAILED
+
+    [0m [90m 104 |[39m     })
+     [90m 105 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 106 |[39m     console[33m.[39merror([32m`[ERROR] Erro ao abrir diret├│rio: ${error.code}`[39m)
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 107 |[39m
+     [90m 108 |[39m     [90m// Mapear c├│digo de erro para status HTTP apropriado[39m
+     [90m 109 |[39m     [36mlet[39m statusCode [33m=[39m [35m500[39m[0m
+
+      at error (src/controllers/directoryController.js:106:13)
+
+FAIL tests/integration/api.test.js
+  API Integration Tests
+    POST /api/v1/analyze
+      ÔêÜ deve analisar um diret├│rio v├ílido e retornar status 200 (125 ms)
+      ÔêÜ deve retornar erro para caminho vazio (12 ms)
+      ÔêÜ deve retornar erro para diret├│rio inexistente (14 ms)
+      ÔêÜ deve retornar estrutura com propriedades obrigat├│rias (13 ms)
+    POST /api/v1/open
+      ├ù deve abrir um diret├│rio v├ílido (400 ms)
+      ÔêÜ deve retornar erro para caminho vazio (13 ms)
+    GET /api/v1/health
+      ÔêÜ deve retornar status de sa├║de da API (20 ms)
+
+  ÔùÅ API Integration Tests ÔÇ║ POST /api/v1/open ÔÇ║ deve abrir um diret├│rio v├ílido
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 500
+
+      74 |         .send({ path: tempDir })
+      75 |
+    > 76 |       expect(response.status).toBe(200)
+         |                               ^
+      77 |       expect(response.body.success).toBe(true)
+      78 |     })
+      79 |
+
+      at Object.toBe (tests/integration/api.test.js:76:31)
+
+-------------------------|---------|----------|---------|---------|------------------------------------------------------------------------------------------------------------------------------------------------
+File                     | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                              
+-------------------------|---------|----------|---------|---------|------------------------------------------------------------------------------------------------------------------------------------------------
+All files                |   52.16 |    42.55 |   44.82 |    52.5 |                                                                                                                                                
+ src                     |   68.96 |    31.25 |       0 |   68.96 |                                                                                                                                                
+  index.js               |   68.96 |    31.25 |       0 |   68.96 | 24-26,35,40,50-52,62-63                                                                                                                        
+ src/controllers         |   77.77 |       50 |   66.66 |   77.77 |                                                                                                                                                
+  directoryController.js |   77.77 |       50 |   66.66 |   77.77 | 10,46,59-65,96,111,113,115                                                                                                                     
+ src/routes              |     100 |      100 |     100 |     100 |                                                                                                                                                
+  directoryRoutes.js     |     100 |      100 |     100 |     100 |                                                                                                                                                
+ src/services            |   36.64 |    34.65 |   27.27 |   36.94 |                                                                                                                                                
+  directoryService.js    |   36.64 |    34.65 |   27.27 |   36.94 | 12-50,61,75,87-164,185,189,203,206,209,225-227,232-233,238-239,246-247,255,273-275,280-281,290-292,303-307,310-316,323-330,336,345-352,357,377 
+ src/utils               |   58.53 |       60 |   85.71 |   58.53 |                                                                                                                                                
+  pathValidator.js       |   66.66 |       60 |   66.66 |   66.66 | 18,26-36,45,52,76,96-103                                                                                                                       
+  secureExecutor.js      |   53.06 |       60 |     100 |   53.06 | 36-39,44-50,58-61,68-78,83-84,118                                                                                                              
+-------------------------|---------|----------|---------|---------|------------------------------------------------------------------------------------------------------------------------------------------------
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 6 passed, 7 total
+Snapshots:   0 total
+Time:        1.766 s, estimated 3 s
+Ran all test suites matching /api.test.js$/i.

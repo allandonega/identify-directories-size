@@ -1,0 +1,449 @@
+
+> identify-directories-size-backend@1.0.0 test
+> jest --coverage --detectOpenHandles
+
+FAIL tests/unit/integration/criticalFixes.test.js
+  ÔùÅ Critical Fixes - TDD Tests ÔÇ║ CR├ìTICO #2: JSON Type Validation ÔÇ║ deve aceitar path como string v├ílida
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 401
+
+      112 |         .send({ path: tempDir })
+      113 |
+    > 114 |       expect(response.status).toBe(200)
+          |                               ^
+      115 |       expect(response.body.success).toBe(true)
+      116 |     })
+      117 |
+
+      at Object.toBe (tests/unit/integration/criticalFixes.test.js:114:31)
+
+  ÔùÅ Critical Fixes - TDD Tests ÔÇ║ CR├ìTICO #3: HTTP Request Timeout ÔÇ║ deve completar requisi├º├úo normal rapidamente
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value: 401
+    Received array: [200, 400, 404, 500]
+
+      139 |
+      140 |       const duration = Date.now() - startTime
+    > 141 |       expect([200, 400, 404, 500]).toContain(response.status)
+          |                                    ^
+      142 |       expect(duration).toBeLessThan(15000)
+      143 |     })
+      144 |
+
+      at Object.toContain (tests/unit/integration/criticalFixes.test.js:141:36)
+
+  ÔùÅ Critical Fixes - TDD Tests ÔÇ║ CR├ìTICO #3: HTTP Request Timeout ÔÇ║ deve respeitar timeout configurado
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value: 401
+    Received array: [200, 404]
+
+      149 |
+      150 |       // Health check deve ser r├ípido
+    > 151 |       expect([200, 404]).toContain(response.status)
+          |                          ^
+      152 |     })
+      153 |
+      154 |     it('deve retornar resposta mesmo em opera├º├Áes demoradas', async () => {
+
+      at Object.toContain (tests/unit/integration/criticalFixes.test.js:151:26)
+
+  ÔùÅ Critical Fixes - TDD Tests ÔÇ║ CR├ìTICO #4: Non-Blocking File System Operations ÔÇ║ deve responder rapidamente para an├ílise de diret├│rio
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value: 401
+    Received array: [200, 400, 404, 500]
+
+      172 |       const duration = Date.now() - startTime
+      173 |
+    > 174 |       expect([200, 400, 404, 500]).toContain(response.status)
+          |                                    ^
+      175 |       expect(response.body).toBeDefined()
+      176 |       expect(duration).toBeLessThan(5000)
+      177 |     })
+
+      at Object.toContain (tests/unit/integration/criticalFixes.test.js:174:36)
+
+FAIL tests/integration/api.test.js
+  ÔùÅ API Integration Tests ÔÇ║ POST /api/v1/analyze ÔÇ║ deve analisar um diret├│rio v├ílido e retornar status 200
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 401
+
+      30 |         .send({ path: tempDir })
+      31 |
+    > 32 |       expect(response.status).toBe(200)
+         |                               ^
+      33 |       expect(response.body).toHaveProperty('success')
+      34 |       expect(response.body.success).toBe(true)
+      35 |       expect(response.body).toHaveProperty('data')
+
+      at Object.toBe (tests/integration/api.test.js:32:31)
+
+  ÔùÅ API Integration Tests ÔÇ║ POST /api/v1/analyze ÔÇ║ deve retornar erro para diret├│rio inexistente
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value: 401
+    Received array: [400, 404]
+
+      51 |
+      52 |       // Path que n├úo existe pode retornar 400 ou 404 (ambos s├úo v├ílidos)
+    > 53 |       expect([400, 404]).toContain(response.status)
+         |                          ^
+      54 |       expect(response.body.success).toBe(false)
+      55 |     })
+      56 |
+
+      at Object.toContain (tests/integration/api.test.js:53:26)
+
+  ÔùÅ API Integration Tests ÔÇ║ POST /api/v1/analyze ÔÇ║ deve retornar estrutura com propriedades obrigat├│rias
+
+    expect(received).toHaveProperty(path)
+
+    Matcher error: received value must not be null nor undefined
+
+    Received has value: undefined
+
+      60 |         .send({ path: tempDir })
+      61 |
+    > 62 |       expect(response.body.data).toHaveProperty('name')
+         |                                  ^
+      63 |       expect(response.body.data).toHaveProperty('size')
+      64 |       expect(response.body.data).toHaveProperty('path')
+      65 |       expect(response.body.data).toHaveProperty('children')
+
+      at Object.toHaveProperty (tests/integration/api.test.js:62:34)
+
+  ÔùÅ API Integration Tests ÔÇ║ POST /api/v1/open ÔÇ║ deve abrir um diret├│rio v├ílido ou retornar erro esperado
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value: 401
+    Received array: [200, 500]
+
+      75 |
+      76 |       // Em alguns sistemas, "open" pode falhar; aceitamos sucesso ou erro esperado
+    > 77 |       expect([200, 500]).toContain(response.status)
+         |                          ^
+      78 |       // Se falhou, deve ser erro de sistema operacional, n├úo de valida├º├úo
+      79 |       if (response.status === 500) {
+      80 |         expect(response.body.success).toBe(false)
+
+      at Object.toContain (tests/integration/api.test.js:77:26)
+
+  ÔùÅ API Integration Tests ÔÇ║ GET /api/v1/health ÔÇ║ deve retornar status de sa├║de da API
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 401
+
+       98 |       const response = await request(app).get('/api/v1/health')
+       99 |
+    > 100 |       expect(response.status).toBe(200)
+          |                               ^
+      101 |       expect(response.body).toHaveProperty('status')
+      102 |       expect(response.body.status).toBe('ok')
+      103 |     })
+
+      at Object.toBe (tests/integration/api.test.js:100:31)
+
+PASS tests/unit/services/directoryServiceSecurity.test.js
+PASS tests/unit/services/directoryService.test.js
+PASS tests/unit/controllers/directoryController.test.js
+  ÔùÅ Console
+
+    console.error
+      [ERROR] Erro ao abrir diret├│rio: OPEN_FAILED
+
+      102 |     })
+      103 |   } catch (error) {
+    > 104 |     console.error(`[ERROR] Erro ao abrir diret├│rio: ${error.code}`)
+          |             ^
+      105 |
+      106 |     // Mapear c├│digo de erro para status HTTP apropriado
+      107 |     let statusCode = 500
+
+      at error (src/controllers/directoryController.js:104:13)
+      at Object.<anonymous> (tests/unit/controllers/directoryController.test.js:170:7)
+
+    console.error
+      [ERROR] Erro ao abrir diret├│rio: INJECTION_DETECTED
+
+      102 |     })
+      103 |   } catch (error) {
+    > 104 |     console.error(`[ERROR] Erro ao abrir diret├│rio: ${error.code}`)
+          |             ^
+      105 |
+      106 |     // Mapear c├│digo de erro para status HTTP apropriado
+      107 |     let statusCode = 500
+
+      at error (src/controllers/directoryController.js:104:13)
+      at Object.<anonymous> (tests/unit/controllers/directoryController.test.js:187:7)
+
+PASS tests/unit/utils/secureExecutor.test.js
+  ÔùÅ Console
+
+    console.warn
+      [SECURITY] Tentativa de command injection detectada: C:\test"&whoami&"
+
+      46 |       )
+      47 |       error.code = 'INJECTION_DETECTED'
+    > 48 |       console.warn(`[SECURITY] Tentativa de command injection detectada: ${dirPath}`)
+         |               ^
+      49 |       reject(error)
+      50 |       return
+      51 |     }
+
+      at warn (src/utils/secureExecutor.js:48:15)
+      at safeOpenDirectory (src/utils/secureExecutor.js:33:10)
+      at Object.safeOpenDirectory (tests/unit/utils/secureExecutor.test.js:15:20)
+
+    console.warn
+      [SECURITY] Tentativa de command injection detectada: C:\test&whoami&
+
+      46 |       )
+      47 |       error.code = 'INJECTION_DETECTED'
+    > 48 |       console.warn(`[SECURITY] Tentativa de command injection detectada: ${dirPath}`)
+         |               ^
+      49 |       reject(error)
+      50 |       return
+      51 |     }
+
+      at warn (src/utils/secureExecutor.js:48:15)
+      at safeOpenDirectory (src/utils/secureExecutor.js:33:10)
+      at Object.safeOpenDirectory (tests/unit/utils/secureExecutor.test.js:20:20)
+
+    console.warn
+      [SECURITY] Tentativa de command injection detectada: C:\test | whoami
+
+      46 |       )
+      47 |       error.code = 'INJECTION_DETECTED'
+    > 48 |       console.warn(`[SECURITY] Tentativa de command injection detectada: ${dirPath}`)
+         |               ^
+      49 |       reject(error)
+      50 |       return
+      51 |     }
+
+      at warn (src/utils/secureExecutor.js:48:15)
+      at safeOpenDirectory (src/utils/secureExecutor.js:33:10)
+      at Object.safeOpenDirectory (tests/unit/utils/secureExecutor.test.js:25:20)
+
+    console.warn
+      [SECURITY] Tentativa de command injection detectada: C:\test; whoami
+
+      46 |       )
+      47 |       error.code = 'INJECTION_DETECTED'
+    > 48 |       console.warn(`[SECURITY] Tentativa de command injection detectada: ${dirPath}`)
+         |               ^
+      49 |       reject(error)
+      50 |       return
+      51 |     }
+
+      at warn (src/utils/secureExecutor.js:48:15)
+      at safeOpenDirectory (src/utils/secureExecutor.js:33:10)
+      at Object.safeOpenDirectory (tests/unit/utils/secureExecutor.test.js:30:20)
+
+    console.warn
+      [SECURITY] Tentativa de command injection detectada: C:\test`whoami`
+
+      46 |       )
+      47 |       error.code = 'INJECTION_DETECTED'
+    > 48 |       console.warn(`[SECURITY] Tentativa de command injection detectada: ${dirPath}`)
+         |               ^
+      49 |       reject(error)
+      50 |       return
+      51 |     }
+
+      at warn (src/utils/secureExecutor.js:48:15)
+      at safeOpenDirectory (src/utils/secureExecutor.js:33:10)
+      at Object.safeOpenDirectory (tests/unit/utils/secureExecutor.test.js:35:20)
+
+    console.warn
+      [SECURITY] Tentativa de command injection detectada: /tmp/test$(whoami)
+
+      46 |       )
+      47 |       error.code = 'INJECTION_DETECTED'
+    > 48 |       console.warn(`[SECURITY] Tentativa de command injection detectada: ${dirPath}`)
+         |               ^
+      49 |       reject(error)
+      50 |       return
+      51 |     }
+
+      at warn (src/utils/secureExecutor.js:48:15)
+      at safeOpenDirectory (src/utils/secureExecutor.js:33:10)
+      at Object.safeOpenDirectory (tests/unit/utils/secureExecutor.test.js:40:20)
+
+    console.warn
+      [SECURITY] Tentativa de command injection detectada: /tmp/test&whoami
+
+      46 |       )
+      47 |       error.code = 'INJECTION_DETECTED'
+    > 48 |       console.warn(`[SECURITY] Tentativa de command injection detectada: ${dirPath}`)
+         |               ^
+      49 |       reject(error)
+      50 |       return
+      51 |     }
+
+      at warn (src/utils/secureExecutor.js:48:15)
+      at safeOpenDirectory (src/utils/secureExecutor.js:33:10)
+      at Object.safeOpenDirectory (tests/unit/utils/secureExecutor.test.js:83:22)
+
+    console.warn
+      [SECURITY] Tentativa de command injection detectada: /tmp/test|whoami
+
+      46 |       )
+      47 |       error.code = 'INJECTION_DETECTED'
+    > 48 |       console.warn(`[SECURITY] Tentativa de command injection detectada: ${dirPath}`)
+         |               ^
+      49 |       reject(error)
+      50 |       return
+      51 |     }
+
+      at warn (src/utils/secureExecutor.js:48:15)
+      at safeOpenDirectory (src/utils/secureExecutor.js:33:10)
+      at Object.safeOpenDirectory (tests/unit/utils/secureExecutor.test.js:83:22)
+
+    console.warn
+      [SECURITY] Tentativa de command injection detectada: /tmp/test;whoami
+
+      46 |       )
+      47 |       error.code = 'INJECTION_DETECTED'
+    > 48 |       console.warn(`[SECURITY] Tentativa de command injection detectada: ${dirPath}`)
+         |               ^
+      49 |       reject(error)
+      50 |       return
+      51 |     }
+
+      at warn (src/utils/secureExecutor.js:48:15)
+      at safeOpenDirectory (src/utils/secureExecutor.js:33:10)
+      at Object.safeOpenDirectory (tests/unit/utils/secureExecutor.test.js:83:22)
+
+    console.warn
+      [SECURITY] Tentativa de command injection detectada: /tmp/test`whoami
+
+      46 |       )
+      47 |       error.code = 'INJECTION_DETECTED'
+    > 48 |       console.warn(`[SECURITY] Tentativa de command injection detectada: ${dirPath}`)
+         |               ^
+      49 |       reject(error)
+      50 |       return
+      51 |     }
+
+      at warn (src/utils/secureExecutor.js:48:15)
+      at safeOpenDirectory (src/utils/secureExecutor.js:33:10)
+      at Object.safeOpenDirectory (tests/unit/utils/secureExecutor.test.js:83:22)
+
+    console.warn
+      [SECURITY] Tentativa de command injection detectada: /tmp/test$whoami
+
+      46 |       )
+      47 |       error.code = 'INJECTION_DETECTED'
+    > 48 |       console.warn(`[SECURITY] Tentativa de command injection detectada: ${dirPath}`)
+         |               ^
+      49 |       reject(error)
+      50 |       return
+      51 |     }
+
+      at warn (src/utils/secureExecutor.js:48:15)
+      at safeOpenDirectory (src/utils/secureExecutor.js:33:10)
+      at Object.safeOpenDirectory (tests/unit/utils/secureExecutor.test.js:83:22)
+
+    console.warn
+      [SECURITY] Tentativa de command injection detectada: /tmp/test(whoami
+
+      46 |       )
+      47 |       error.code = 'INJECTION_DETECTED'
+    > 48 |       console.warn(`[SECURITY] Tentativa de command injection detectada: ${dirPath}`)
+         |               ^
+      49 |       reject(error)
+      50 |       return
+      51 |     }
+
+      at warn (src/utils/secureExecutor.js:48:15)
+      at safeOpenDirectory (src/utils/secureExecutor.js:33:10)
+      at Object.safeOpenDirectory (tests/unit/utils/secureExecutor.test.js:83:22)
+
+    console.warn
+      [SECURITY] Tentativa de command injection detectada: /tmp/test)whoami
+
+      46 |       )
+      47 |       error.code = 'INJECTION_DETECTED'
+    > 48 |       console.warn(`[SECURITY] Tentativa de command injection detectada: ${dirPath}`)
+         |               ^
+      49 |       reject(error)
+      50 |       return
+      51 |     }
+
+      at warn (src/utils/secureExecutor.js:48:15)
+      at safeOpenDirectory (src/utils/secureExecutor.js:33:10)
+      at Object.safeOpenDirectory (tests/unit/utils/secureExecutor.test.js:83:22)
+
+    console.warn
+      [SECURITY] Tentativa de command injection detectada: /tmp/test<whoami
+
+      46 |       )
+      47 |       error.code = 'INJECTION_DETECTED'
+    > 48 |       console.warn(`[SECURITY] Tentativa de command injection detectada: ${dirPath}`)
+         |               ^
+      49 |       reject(error)
+      50 |       return
+      51 |     }
+
+      at warn (src/utils/secureExecutor.js:48:15)
+      at safeOpenDirectory (src/utils/secureExecutor.js:33:10)
+      at Object.safeOpenDirectory (tests/unit/utils/secureExecutor.test.js:83:22)
+
+    console.warn
+      [SECURITY] Tentativa de command injection detectada: /tmp/test>whoami
+
+      46 |       )
+      47 |       error.code = 'INJECTION_DETECTED'
+    > 48 |       console.warn(`[SECURITY] Tentativa de command injection detectada: ${dirPath}`)
+         |               ^
+      49 |       reject(error)
+      50 |       return
+      51 |     }
+
+      at warn (src/utils/secureExecutor.js:48:15)
+      at safeOpenDirectory (src/utils/secureExecutor.js:33:10)
+      at Object.safeOpenDirectory (tests/unit/utils/secureExecutor.test.js:83:22)
+
+PASS tests/unit/utils/pathValidator.test.js
+PASS tests/unit/controllers/directoryController.integration.test.js
+-------------------------|---------|----------|---------|---------|---------------------------------------------------------------------------------------------------------------------------
+File                     | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                         
+-------------------------|---------|----------|---------|---------|---------------------------------------------------------------------------------------------------------------------------
+All files                |   70.46 |    64.83 |   73.68 |   70.09 |                                                                                                                           
+ src                     |   70.49 |    41.37 |   33.33 |      70 |                                                                                                                           
+  index.js               |   70.49 |    41.37 |   33.33 |      70 | 20-22,31,39-42,75-77,89-90,102,113,122,127,140-141                                                                        
+ src/controllers         |   84.78 |    60.71 |   83.33 |   84.78 |                                                                                                                           
+  directoryController.js |   84.78 |    60.71 |   83.33 |   84.78 | 10,17-18,67-68,111,113                                                                                                    
+ src/middleware          |    30.9 |     30.3 |      60 |    30.9 |                                                                                                                           
+  pathTypeValidator.js   |     100 |      100 |     100 |     100 |                                                                                                                           
+  requestTimeout.js      |      60 |        0 |   66.66 |      60 | 10-22                                                                                                                     
+  secureErrorHandler.js  |    5.55 |        0 |       0 |    5.55 | 9-66                                                                                                                      
+ src/routes              |     100 |      100 |     100 |     100 |                                                                                                                           
+  directoryRoutes.js     |     100 |      100 |     100 |     100 |                                                                                                                           
+ src/services            |   75.92 |    74.25 |     100 |   75.31 |                                                                                                                           
+  directoryService.js    |   75.92 |    74.25 |     100 |   75.31 | 44-48,146,158,187,191,205,208,211,227-229,240-241,247-248,256,274-276,281-282,292-294,312-318,325-332,338,350-354,359,379 
+ src/utils               |    75.6 |    86.66 |   85.71 |    75.6 |                                                                                                                           
+  pathValidator.js       |    90.9 |    93.33 |     100 |    90.9 | 45,52,103                                                                                                                 
+  secureExecutor.js      |    65.3 |    73.33 |      75 |    65.3 | 68-78,88-118                                                                                                              
+-------------------------|---------|----------|---------|---------|---------------------------------------------------------------------------------------------------------------------------
+
+Test Suites: 2 failed, 6 passed, 8 total
+Tests:       9 failed, 107 passed, 116 total
+Snapshots:   0 total
+Time:        3.032 s, estimated 4 s
+Ran all test suites.
