@@ -59,9 +59,10 @@ const isValidPath = (dirPath, allowedPaths = []) => {
  * Valida path e verifica se existe e é diretório
  * @param {string} dirPath - Caminho a validar
  * @param {string[]} allowedPaths - Lista de caminhos permitidos (whitelist)
+ * @param {boolean} allowAllPathsDev - Se true em dev, permite qualquer path (apenas validação de segurança)
  * @returns {object} { isValid: boolean, error: string | null }
  */
-const validatePathSecurity = (dirPath, allowedPaths = []) => {
+const validatePathSecurity = (dirPath, allowedPaths = [], allowAllPathsDev = false) => {
   // Validação básica
   if (!dirPath || typeof dirPath !== 'string' || dirPath.trim() === '') {
     return {
@@ -71,8 +72,8 @@ const validatePathSecurity = (dirPath, allowedPaths = []) => {
     }
   }
 
-  // Validação de segurança (path traversal)
-  if (!isValidPath(dirPath, allowedPaths)) {
+  // Validação de segurança (path traversal) - SEMPRE executada
+  if (!isValidPath(dirPath, allowAllPathsDev ? [] : allowedPaths)) {
     return {
       isValid: false,
       error: 'FORBIDDEN_PATH',

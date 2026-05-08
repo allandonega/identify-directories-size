@@ -8,12 +8,13 @@ const { safeOpenDirectory } = require('../utils/secureExecutor')
 // Carregar allowed paths do .env
 const ALLOWED_PATHS = process.env.ALLOWED_PATHS
   ? process.env.ALLOWED_PATHS.split(',').map((p) => p.trim())
-  : process.env.NODE_ENV === 'production'
-  ? [] // Em produção, EXIGIR configuração
-  : [process.cwd(), require('os').homedir()] // Em dev, home + current dir
+  : []
+
+// Em desenvolvimento, permitir qualquer path válido (apenas segurança contra path traversal)
+const ALLOW_ALL_PATHS_DEV = process.env.NODE_ENV !== 'production'
 
 // CRÍTICO: Validar em startup se há paths permitidos em produção
-if (process.env.NODE_ENV === 'production' && ALLOWED_PATHS.length === 0) {
+if (process.env.NODE_ENV === 'production' && ALLOWED_PATHS.length === 0 && !ALLOW_ALL_PATHS_DEV) {
   console.error('[SECURITY] ERRO: ALLOWED_PATHS vazio em produção!')
   console.error('[SECURITY] Configure ALLOWED_PATHS no arquivo .env')
 }
@@ -27,7 +28,7 @@ const analyzeDirectory = async (req, res, next) => {
     const { path: dirPath } = req.body
 
     // Validação robusta contra Path Traversal
-    const validation = validatePathSecurity(dirPath, ALLOWED_PATHS)
+    const validation = validatePathSecurity(dirPath, ALLOWED_PATHS, ALLOW_ALL_PATHS_DEV)
     if (!validation.isValid) {
       return res.status(400).json({
         success: false,
@@ -78,7 +79,7 @@ const openDirectory = async (req, res) => {
     const { path: dirPath } = req.body
 
     // Validação robusta contra Path Traversal
-    const validation = validatePathSecurity(dirPath, ALLOWED_PATHS)
+    const validation = validatePathSecurity(dirPath, ALLOWED_PATHS, ALLOW_ALL_PATHS_DEV)
     if (!validation.isValid) {
       return res.status(400).json({
         success: false,
